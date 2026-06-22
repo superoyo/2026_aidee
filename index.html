@@ -114,7 +114,7 @@ body{font-family:'Sarabun',sans-serif;background:#f5f5f0;min-height:100vh;displa
   </div>
 
   <div class="right-panel">
-    <div class="api-bar" id="apiBar">
+    <div class="api-bar" id="apiBar" style="display:none">
       <label>Claude API Key:</label>
       <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
       <button class="api-save-btn" onclick="saveApiKey()">บันทึก</button>
@@ -261,7 +261,7 @@ async function searchByKeyword() {
 
   // Step 2: if keyword is Thai or few matches, use Claude API for semantic/translated search
   const isThai = /[฀-๿]/.test(kw);
-  if ((isThai || matched.length < 5) && apiKey) {
+  if (isThai || matched.length < 5) {
     try {
       // Ask Claude to find related English terms and top matching campaigns
       const sample = AWARDS.map(a => ({
@@ -273,14 +273,9 @@ async function searchByKeyword() {
       }));
       // Send in batches of 500 for speed
       const batch = sample.slice(0, 800);
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/claude', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
           max_tokens: 600,
@@ -507,26 +502,15 @@ async function toggleInfo(btn, idx) {
     return;
   }
 
-  if (!apiKey) {
-    panel.style.display = 'block';
-    panel.innerHTML = `<p style="font-size:13px;color:#c00">กรุณากรอก Claude API Key ก่อนใช้งาน INFO</p>`;
-    return;
-  }
-
   btn.classList.add('loading');
   btn.disabled = true;
   panel.style.display = 'block';
   panel.innerHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>AiDee กำลังวิเคราะห์...</span></div>`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/claude', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 900,
@@ -607,11 +591,6 @@ async function translateInfo(btn) {
     btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg> ดูภาษาอังกฤษ`;
     return;
   }
-  if (!apiKey) {
-    alert('กรุณากรอก Claude API Key ก่อนใช้งาน');
-    return;
-  }
-
   btn.disabled = true;
   btn.innerHTML = `<div class="dot" style="display:inline-block"></div> กำลังแปล...`;
 
@@ -622,14 +601,9 @@ async function translateInfo(btn) {
   });
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/claude', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 4096,
@@ -760,12 +734,6 @@ async function handleSend() {
 
   const area = document.getElementById('contentArea');
 
-  if (!apiKey) {
-    document.getElementById('apiBar').style.display = 'flex';
-    area.innerHTML = `<div class="ai-result"><p style="color:#c00">กรุณากรอก Claude API Key ก่อนใช้งาน AI features</p></div>`;
-    return;
-  }
-
   const userBubble = document.createElement('div');
   userBubble.className = 'user-bubble';
   userBubble.textContent = query;
@@ -791,14 +759,9 @@ async function handleSend() {
   const systemPrompt = systemPrompts[currentTab] || systemPrompts.analyze;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/claude', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1500,
