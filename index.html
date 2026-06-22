@@ -632,11 +632,10 @@ async function translateInfo(btn) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1200,
+        max_tokens: 4096,
         messages: [{
           role: 'user',
-          content: `แปลข้อความต่อไปนี้เป็นภาษาไทยแบบเป็นธรรมชาติ สละสลวย สำหรับคนวงการโฆษณาไทย คงศัพท์เทคนิคโฆษณาไว้ในวงเล็บ ส่งกลับเป็น JSON เท่านั้น ไม่มี markdown:
-${JSON.stringify(sections)}`
+          content: `แปลข้อความต่อไปนี้เป็นภาษาไทยแบบเป็นธรรมชาติ สละสลวย สำหรับคนวงการโฆษณาไทย คงศัพท์เทคนิคโฆษณาไว้ในวงเล็บ\n\nตอบกลับเป็น JSON object เท่านั้น ไม่มี markdown ไม่มี backtick ไม่มีข้อความนำหน้าหรือต่อท้าย เริ่มต้นด้วย { และจบด้วย } เท่านั้น:\n${JSON.stringify(sections)}`
         }]
       })
     });
