@@ -348,16 +348,15 @@ ${JSON.stringify(batch)}
 
 function showAwardsUI() {
   const area = document.getElementById('contentArea');
-  const cats = [...new Set(AWARDS.map(a=>a.category))].sort();
   const levels = [...new Set(AWARDS.map(a=>a.level))].filter(Boolean).sort();
   const years = [...new Set(AWARDS.map(a=>a.year))].sort((a,b)=>b-a);
-  const comps = ['ADMAN','ADFEST'];
 
   area.innerHTML = `
     <div class="filters">
-      <select class="filter-select" id="fComp" onchange="filterAwards()">
+      <select class="filter-select" id="fComp" onchange="updateCatOptions();filterAwards()">
         <option value="">ทั้งหมด (ADMAN+ADFEST)</option>
-        ${comps.map(c=>`<option>${c}</option>`).join('')}
+        <option value="ADMAN">ADMAN</option>
+        <option value="ADFEST">ADFEST</option>
       </select>
       <select class="filter-select" id="fLevel" onchange="filterAwards()">
         <option value="">ทุกระดับรางวัล</option>
@@ -369,12 +368,23 @@ function showAwardsUI() {
       </select>
       <select class="filter-select" id="fCat" onchange="filterAwards()">
         <option value="">ทุก Category</option>
-        ${cats.map(c=>`<option>${c}</option>`).join('')}
       </select>
       <input class="filter-select" type="text" id="fBrand" placeholder="🔍 ค้นหา Brand..." oninput="filterAwards()" style="min-width:160px;">
     </div>
     <div class="results" id="awardResults"></div>`;
+  updateCatOptions();
   filterAwards();
+}
+
+function updateCatOptions() {
+  const comp = document.getElementById('fComp')?.value || '';
+  const prev = document.getElementById('fCat')?.value || '';
+  const source = comp ? AWARDS.filter(a => a.comp === comp) : AWARDS;
+  const cats = [...new Set(source.map(a => a.category))].filter(Boolean).sort();
+  const sel = document.getElementById('fCat');
+  if (!sel) return;
+  sel.innerHTML = `<option value="">${comp ? `ทุก Category ของ ${comp}` : 'ทุก Category'}</option>` +
+    cats.map(c => `<option${c===prev?' selected':''}>${c}</option>`).join('');
 }
 
 const CATEGORY_PDFS = {
