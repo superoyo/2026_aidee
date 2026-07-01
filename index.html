@@ -371,6 +371,7 @@ function showAwardsUI() {
         <option value="">ทุก Category</option>
         ${cats.map(c=>`<option>${c}</option>`).join('')}
       </select>
+      <input class="filter-select" type="text" id="fBrand" placeholder="🔍 ค้นหา Brand..." oninput="filterAwards()" style="min-width:160px;">
     </div>
     <div class="results" id="awardResults"></div>`;
   filterAwards();
@@ -406,12 +407,14 @@ function filterAwards() {
   const level = document.getElementById('fLevel').value;
   const year = document.getElementById('fYear').value;
   const cat = document.getElementById('fCat').value;
+  const brand = (document.getElementById('fBrand')?.value || '').trim().toLowerCase();
 
   let filtered = AWARDS.filter(a =>
     (!comp || a.comp === comp) &&
     (!level || a.level === level) &&
     (!year || a.year == year) &&
-    (!cat || a.category === cat)
+    (!cat || a.category === cat) &&
+    (!brand || (a.brand || '').toLowerCase().includes(brand))
   );
 
   const el = document.getElementById('awardResults');
