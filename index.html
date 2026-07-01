@@ -366,8 +366,11 @@ function showAwardsUI() {
         <option value="">ทุกปี</option>
         ${years.map(y=>`<option>${y}</option>`).join('')}
       </select>
-      <select class="filter-select" id="fCat" onchange="filterAwards()">
+      <select class="filter-select" id="fCat" onchange="updateSubCatOptions();filterAwards()">
         <option value="">ทุก Category</option>
+      </select>
+      <select class="filter-select" id="fSubCat" onchange="filterAwards()" style="display:none">
+        <option value="">ทุก Sub-Category</option>
       </select>
       <input class="filter-select" type="text" id="fBrand" placeholder="🔍 ค้นหา Brand..." oninput="filterAwards()" style="min-width:160px;">
     </div>
@@ -385,6 +388,22 @@ function updateCatOptions() {
   if (!sel) return;
   sel.innerHTML = `<option value="">${comp ? `ทุก Category ของ ${comp}` : 'ทุก Category'}</option>` +
     cats.map(c => `<option${c===prev?' selected':''}>${c}</option>`).join('');
+  updateSubCatOptions();
+}
+
+function updateSubCatOptions() {
+  const comp = document.getElementById('fComp')?.value || '';
+  const cat = document.getElementById('fCat')?.value || '';
+  const prev = document.getElementById('fSubCat')?.value || '';
+  const sel = document.getElementById('fSubCat');
+  if (!sel) return;
+  if (!cat) { sel.style.display = 'none'; sel.value = ''; return; }
+  const source = AWARDS.filter(a => (!comp || a.comp === comp) && a.category === cat);
+  const subs = [...new Set(source.map(a => a.subcategory))].filter(Boolean).sort();
+  if (!subs.length) { sel.style.display = 'none'; sel.value = ''; return; }
+  sel.innerHTML = `<option value="">ทุก Sub-Category</option>` +
+    subs.map(s => `<option${s===prev?' selected':''}>${s}</option>`).join('');
+  sel.style.display = '';
 }
 
 const CATEGORY_PDFS = {
@@ -417,6 +436,7 @@ function filterAwards() {
   const level = document.getElementById('fLevel').value;
   const year = document.getElementById('fYear').value;
   const cat = document.getElementById('fCat').value;
+  const subcat = document.getElementById('fSubCat')?.value || '';
   const brand = (document.getElementById('fBrand')?.value || '').trim().toLowerCase();
 
   let filtered = AWARDS.filter(a =>
@@ -424,6 +444,7 @@ function filterAwards() {
     (!level || a.level === level) &&
     (!year || a.year == year) &&
     (!cat || a.category === cat) &&
+    (!subcat || a.subcategory === subcat) &&
     (!brand || (a.brand || '').toLowerCase().includes(brand))
   );
 
